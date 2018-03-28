@@ -1,0 +1,24 @@
+---
+- name: Tomcat web servr deployment
+  hosts: all
+  remote_user: cloud
+  become: true
+
+  tasks:
+  - name: Install prerequisties
+    yum: name=java-1.8.0-openjdk state=present
+
+  - name: Creating Directory structure
+    file: name=/opt/tomcat state=directory
+
+  - name: Downloading Tomcat Binaries
+    get_url: url=http://www-eu.apache.org/dist/tomcat/tomcat-8/v8.5.29/bin/apache-tomcat-8.5.29.tar.gz dest=/opt/tomcat
+
+  - name: Extracting Tomcat
+    shell: cd /opt/tomcat; tar -xvzf apache-tomcat-8.5.29.tar.gz; cd apache-tomcat-8.5.29/bin/; chmod 777 startup.sh shutdown.sh catalina.sh
+
+  - name: War deployment
+    shell: cd /opt/tomcat/apache-tomcat-8.5.29/webapps/; wget https://tomcat.apache.org/tomcat-8.0-doc/appdev/sample/sample.war; cd /opt/tomcat/apache-tomcat-8.5.29/bin
+
+  - name: Starting Tomcat
+    command: /opt/tomcat/apache-tomcat-8.5.29/bin/catalina.sh start

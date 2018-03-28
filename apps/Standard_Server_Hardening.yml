@@ -1,0 +1,18 @@
+---
+# Playbook for NTP Application
+- name: NTP Application setup
+  hosts: all
+  remote_user: cloud
+  become: true
+
+# Tasks for NTP Application
+  tasks:
+    - name: NTP Package Installation
+      yum: name=ntp state=present
+
+    - name: NTP File
+      file: path=/etc/ntp.conf state=file
+
+    - name: Starting NTP services
+      service: name=ntpd enabled=yes state=started 
+

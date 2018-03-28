@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+	<title>Self Service Portal</title>
+	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	 
+</head>
+<body  >
+	<div class="container-fluid" style="padding-right: 0px; padding-left: 0px; background-image: url(//electricblaze.com/unicore/page-builder/assets/images/19.jpg); background-position: center top;
+    background-size: 100% auto; min-height: 100%;
+    height: 100%;" />
+
+<nav class="navbar navbar-expand-md navbar-dark bg-dark">
+    <div class="navbar-collapse collapse w-100 order-1 order-md-0 dual-collapse2">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <img src="https://parivedaperspectivescom.files.wordpress.com/2017/06/devops.png" width="150" height="55" />
+            </li>
+            
+        </ul>
+    </div>
+    <div class="mx-auto order-0">
+        <a class="navbar-brand mx-auto" href="#">Self Service Portal for OS &amp; Application </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".dual-collapse2">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+    <div class="navbar-collapse collapse w-100 order-3 dual-collapse2">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item" style="padding-right: 10px;">
+            	 
+
+                <button type="button" class="btn btn-info" id="btn-add-machine"> Add Server</button>
+            </li>
+            <li class="nav-item">
+                <button type="button" class="btn btn-info" id="btn-upload-app">Upload Code</button>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+	 
+ 
+
+ 
+<div class="row" style="padding: 50px">
+	<div class="col-4">
+		<div class="card bg-light mb-3">
+			<div class="card-header">
+    Featured
+  </div>
+  <div class="card-body">
+  <div class="form-group">
+    <label for="email">Destination Machine: </label>
+    <select id="host_ip" name="host_ip" class="form-control" >
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="pwd">Bundle Application:</label>
+    <select id="application_name" name="application_name"  class="form-control"  ></select>
+    
+  </div>
+  <div class="form-check">
+    
+  </div>
+  <button   id="btn-run-job" class="btn btn-primary">Run Job</button>
+ 
+</div>
+</div>
+</div>
+<div class="col-8"  >
+	<div class="progress" style="height: 50px;" id="progress-bar-on">
+  <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 100%">Running Job</div>
+</div>
+
+<div class="card" id="codediv">
+   
+  <div class="card-body">
+    <h5 class="card-title">Application Deployment Output:</h5>
+    <div class="card-text">
+    	<pre><code id="output_text">
+</code></pre>
+
+    </div>
+     
+  </div>
+</div>
+
+ 
+
+
+</div>
+</div>
+ <br>
+
+<footer class="page-footer font-small blue pt-4 mt-4">
+
+    
+
+    <!--Copyright-->
+    <div class="footer-copyright py-3 text-center">
+        Build by Yogesh Raheja and team using Git, Ansible, Pyhton &amp; Falcon
+    </div>
+    <!--/.Copyright-->
+
+</footer>
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<script type="text/javascript">
+	
+$(document).ready(function(){
+    $("#progress-bar-on").hide();
+    $('#codediv').hide();
+
+    $.get("/inventory", function(data, status){
+    	$.each(data, function(i, value) {
+            $('#host_ip').append($('<option>').text(value).attr('value', value));
+        });
+        console.log(data);
+    });
+
+    $.get("/applications", function(data, status){
+    	$.each(data, function(i, value) {
+            $('#application_name').append($('<option>').text(value[1]).attr('value', value[0]));
+        });
+        console.log(data);
+    });
+
+    $("#btn-add-machine").click(function(){ window.open("https://github.com/Jaibw/application_factory/tree/master/inventory"); });
+    $("#btn-upload-app").click(function(){ window.open("https://github.com/Jaibw/application_factory/tree/master/apps"); });
+
+    $("#btn-run-job").click(function(){
+    	$("#progress-bar-on").show();
+    	$('#codediv').hide(); 
+    	$("#btn-run-job").attr("disabled", "disabled");
+    	var objData = {};
+        objData.host_ip = $.trim($('#host_ip').val());
+        objData.app = $.trim($('#application_name').val());
+
+    	jQuery.ajax({ 
+                async: true,
+                type: 'post',                
+                url: "/ansible/",
+                data: JSON.stringify(objData),       
+                contentType: "application/json; charset=utf-8",
+            	dataType: "json",
+                timeout:150000,
+                success: function(data1) 
+                {
+                    console.log(data1);
+                    $("#progress-bar-on").hide();
+                    $('#codediv').show();
+                   
+	    			$('#output_text').html(data1.result);
+	    			$("#btn-run-job").removeAttr("disabled");
+                },
+                error: function(data1){
+                    console.log(data1);
+                    $("#progress-bar-on").hide();
+                    $('#codediv').show();
+                    $('#output_text').html('Error: ' + data1);
+                    $("#btn-run-job").removeAttr("disabled");
+                }
+        });
+
+	}); 
+});
+
+</script>
+
+</body>
+</html>

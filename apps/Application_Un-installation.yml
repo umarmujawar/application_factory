@@ -1,0 +1,14 @@
+---
+- name: Tomcat web servr deployment
+  hosts: all
+  remote_user: cloud
+  become: true
+
+  tasks:
+
+  - name: Stopping Tomcat
+    command: /opt/tomcat/apache-tomcat-8.5.29/bin/catalina.sh stop
+    ignore_errors: yes
+
+  - name: Deleting Directory structure
+    file: name=/opt/tomcat state=absent

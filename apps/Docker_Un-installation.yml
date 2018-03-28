@@ -1,0 +1,31 @@
+---
+- name: Un-Install docker
+  gather_facts: No
+  hosts: all
+  remote_user: cloud
+  become: true
+
+  tasks:
+    - name: Un-Install Docker Dependencies
+      yum:
+        name: "{{item}}"
+        state: absent
+      with_items:
+        - yum-utils
+        - device-mapper-persistent-data
+        - lvm2
+
+    - name: Remove Docker repo
+      file:
+        path: /etc/yum.repos.d/docer-ce.repo
+        state: absent
+
+    - name: Stop Docker service
+      service:
+        name: docker
+        state: stopped
+
+    - name: Un-Install Docker
+      package:
+        name: docker-ce
+        state: absent
